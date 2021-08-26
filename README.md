@@ -3,12 +3,13 @@
 
 
 <p align="center">
-	<a href="https://github.com/thriving123"><img src="https://img.shields.io/badge/author-若离-green" /></a>
+	<a href="https://github.com/thriving123"><img src="https://img.shields.io/badge/author-若离QQ:2909998156-green" /></a>
 	<a href="#"><img src="https://img.shields.io/badge/type-签到脚本-orange" /></a>
-    <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/license-Apache-blue"/></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue"/></a>
     <a href="https://blog.itruoli.com/archives/29.html"><img src="https://img.shields.io/badge/教程-博客-purple"/></a>
-    <a href="https://pan.ruoli.cc/e5/video/"><img src="https://img.shields.io/badge/教程-视频-red"/></a>
+    <a href="https://pan.ruoli.cc/E5/video/"><img src="https://img.shields.io/badge/教程-视频-red"/></a>
     <a href="https://jq.qq.com/?_wv=1027&k=8gnv52Vc"><img src="https://img.shields.io/badge/QQ群-870967170（密码：子墨）-brightgreen" /></a>
+
 
 
 
