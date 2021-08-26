@@ -92,7 +92,7 @@ class Collection:
                 # 判断用户是否需要检查标题
                 if self.userInfo['checkTitle'] == 1:
                     # 如果检查到标题不相等
-                    if formItem['title'] != userForm['title']:
+                    if formItem['title'].strip() != userForm['title'].strip():
                         raise Exception(
                             f'\r\n第{index + 1}个配置项的标题不正确\r\n您的标题为：{userForm["title"]}\r\n系统的标题为：{formItem["title"]}')
                 # 填充多出来的参数（新版增加了三个参数，暂时不知道作用）
@@ -100,7 +100,7 @@ class Collection:
                 formItem['formType'] = '0'  # 盲猜是任务类型、待确认
                 formItem['sortNum'] = str(formItem['sort'])  # 盲猜是sort排序
                 # 文本选项直接赋值
-                if formItem['fieldType'] == '1' or formItem['fieldType'] == '5' or formItem['fieldType'] == '7':
+                if formItem['fieldType'] in ['1', '5', '6', '7']:
                     formItem['value'] = userForm['value']
                 # 单选框填充
                 elif formItem['fieldType'] == '2':

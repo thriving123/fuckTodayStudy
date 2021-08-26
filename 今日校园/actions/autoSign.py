@@ -100,7 +100,7 @@ class AutoSign:
                 userItem = userItems[i]['form']
                 extraField = extraFields[i]
                 if self.userInfo['checkTitle'] == 1:
-                    if userItem['title'] != extraField['title']:
+                    if userItem['title'].strip() != extraField['title'].strip():
                         raise Exception(
                             f'\r\n第{i + 1}个配置出错了\r\n您的标题为：{userItem["title"]}\r\n系统的标题为：{extraField["title"]}')
                 extraFieldItems = extraField['extraFieldItems']
