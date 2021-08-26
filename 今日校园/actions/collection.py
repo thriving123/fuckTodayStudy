@@ -99,6 +99,7 @@ class Collection:
                 formItem['show'] = True
                 formItem['formType'] = '0'  # 盲猜是任务类型、待确认
                 formItem['sortNum'] = str(formItem['sort'])  # 盲猜是sort排序
+                preSelect = []
                 # 文本选项直接赋值
                 if formItem['fieldType'] in ['1', '5', '6', '7']:
                     formItem['value'] = userForm['value']
@@ -111,6 +112,9 @@ class Collection:
                     for fieldItem in fieldItems[:]:
                         if fieldItem['content'] != userForm['value']:
                             fieldItems.remove(fieldItem)
+                            # 如果之前被选中
+                            if fieldItem['isSelected']:
+                                preSelect.append(fieldItem['content'])
                         else:
                             itemWid = fieldItem['itemWid']
                             # 当该字段需要填写且存在otherItemType类型时（其他字段）
@@ -123,7 +127,7 @@ class Collection:
                                 fieldItem['contentExtend'] = userForm['other']
                     if itemWid == '':
                         raise Exception(
-                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为单选，且未找到您配置的值'
+                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为单选，且未找到您配置的值\r\n您上次的选值为：{ preSelect }'
                         )
                     formItem['value'] = itemWid
                 # 多选填充
@@ -145,10 +149,12 @@ class Collection:
                                 fieldItem['contentExtend'] = userForm['other']
                         else:
                             fieldItems.remove(fieldItem)
+                            if fieldItem['isSelected']:
+                                preSelect.append(fieldItem['content'])
                     # 若多选一个都未选中
                     if len(itemWidArr) == 0:
                         raise Exception(
-                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为多选，且未找到您配置的值'
+                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为多选，且未找到您配置的值\r\n您上次的选值为：{ preSelect }'
                         )
                     formItem['value'] = ','.join(itemWidArr)
                 # 图片（健康码）上传类型

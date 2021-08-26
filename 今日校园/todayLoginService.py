@@ -73,7 +73,6 @@ class TodayLoginService:
         elif self.login_url.find('kmu.edu.cn') != -1:
             self.loginEntity = kmuLogin(self.username, self.password, self.login_url, self.login_host, self.session)
         else:
-            print(self.login_url)
             self.loginEntity = casLogin(self.username, self.password, self.login_url, self.login_host, self.session)
         # 统一登录流程
         self.session.cookies = self.loginEntity.login()
