@@ -4,9 +4,10 @@ from urllib.parse import urlparse
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 
+from login.Utils import Utils
 from login.casLogin import casLogin
 from login.iapLogin import iapLogin
-from login.kmuLogin import kmuLogin
+from login.RSALogin import RSALogin
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -32,7 +33,7 @@ class TodayLoginService:
 
     # 通过学校名称借助api获取学校的登陆url
     def getLoginUrlBySchoolName(self):
-        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False).json()[
+        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False, hooks=dict(response=[Utils.checkStatus])).json()[
             'data']
         flag = True
         for item in schools:
@@ -44,7 +45,7 @@ class TodayLoginService:
                     'ids': item['id']
                 }
                 data = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/info', params=params,
-                                        verify=False, ).json()['data'][0]
+                                        verify=False, hooks=dict(response=[Utils.checkStatus])).json()['data'][0]
                 joinType = data['joinType']
                 idsUrl = data['idsUrl']
                 ampUrl = data['ampUrl']
@@ -70,8 +71,8 @@ class TodayLoginService:
     def checkLogin(self):
         if self.login_url.find('/iap') != -1:
             self.loginEntity = iapLogin(self.username, self.password, self.login_url, self.login_host, self.session)
-        elif self.login_url.find('kmu.edu.cn') != -1:
-            self.loginEntity = kmuLogin(self.username, self.password, self.login_url, self.login_host, self.session)
+        elif self.login_url.find('kmu.edu.cn') != -1 or self.login_url.find('hytc.edu.cn') != -1:
+            self.loginEntity = RSALogin(self.username, self.password, self.login_url, self.login_host, self.session)
         else:
             self.loginEntity = casLogin(self.username, self.password, self.login_url, self.login_host, self.session)
         # 统一登录流程

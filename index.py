@@ -1,6 +1,8 @@
 import time
 
 import yaml
+
+from actions.mrbpa import mrbpa
 from todayLoginService import TodayLoginService
 from actions.autoSign import AutoSign
 from actions.collection import Collection
@@ -81,6 +83,7 @@ def working(user):
         work.getFormsByWids()
         work.fillForms()
         msg = work.submitForms()
+        print(msg)
         return msg
     else:
         raise Exception('任务类型出错，请检查您的user的type')

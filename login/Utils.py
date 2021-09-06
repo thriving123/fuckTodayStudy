@@ -4,6 +4,7 @@ import random
 from datetime import datetime, timezone, timedelta
 from io import BytesIO
 
+import rsa
 import yaml
 from Crypto.Cipher import AES
 from tencentcloud.common import credential
@@ -16,6 +17,12 @@ from tencentcloud.ocr.v20181119 import ocr_client, models
 class Utils:
     def __init__(self):
         pass
+
+    # 利用hook判断当前返回的状态码是否正常
+    @staticmethod
+    def checkStatus(request, *args, **kwargs):
+        if request.status_code == 418:
+            raise Exception('当前地区已被禁用，请使用其他地区的节点')
 
     # 获取当前北京时间
     @staticmethod
@@ -47,6 +54,35 @@ class Utils:
         file.close()
         config = yaml.load(file_data, Loader=yaml.FullLoader)
         return dict(config)
+
+    # RSA加密的实现
+    @staticmethod
+    def encryptRSA(message, m, e):
+        mm = int(m, 16)
+        ee = int(e, 16)
+        rsa_pubkey = rsa.PublicKey(mm, ee)
+        crypto = Utils._encrypt_rsa(message.encode(), rsa_pubkey)
+        return crypto.hex()
+
+    @staticmethod
+    def _encrypt_rsa(message, pub_key):
+        keylength = rsa.common.byte_size(pub_key.n)
+        padded = Utils._pad_for_encryption_rsa(message, keylength)
+        payload = rsa.transform.bytes2int(padded)
+        encrypted = rsa.core.encrypt_int(payload, pub_key.e, pub_key.n)
+        block = rsa.transform.int2bytes(encrypted, keylength)
+        return block
+
+    @staticmethod
+    def _pad_for_encryption_rsa(message, target_length):
+        message = message[::-1]
+        max_msglength = target_length - 11
+        msglength = len(message)
+        padding = b''
+        padding_length = target_length - msglength - 3
+        for i in range(padding_length):
+            padding += b'\x00'
+        return b''.join([b'\x00\x00', padding, b'\x00', message])
 
     # aes加密的实现
     @staticmethod

@@ -158,7 +158,7 @@ class workLog:
             res = self.session.post(f'{self.host}wec-counselor-worklog-apps/worklog/update', data=json.dumps(params),
                                     verify=False).json()
             result.append(res['message'])
-        return result
+        return str(result)
 
     # 创建模板
     def createFormTemplate(self):

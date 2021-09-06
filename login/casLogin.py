@@ -30,7 +30,7 @@ class casLogin:
             return flag['isNeed']
 
     def login(self):
-        html = self.session.get(self.login_url, verify=False).text
+        html = self.session.get(self.login_url, verify=False, hooks=dict(response=[Utils.checkStatus])).text
         soup = BeautifulSoup(html, 'lxml')
         form = soup.select('#casLoginForm')
         if len(form) == 0:
@@ -78,12 +78,13 @@ class casLogin:
         # 如果等于302强制跳转，代表登陆成功
         if data.status_code == 302:
             jump_url = data.headers['Location']
-            res = self.session.post(jump_url, verify=False)
+            self.session.headers['Server'] = 'CloudWAF'
+            res = self.session.get(jump_url, verify=False)
             if res.status_code == 200:
                 return self.session.cookies
             else:
                 res = self.session.get(re.findall(r'\w{4,5}\:\/\/.*?\/', self.login_url)[0], verify=False)
-                if res.status_code == 200:
+                if res.status_code == 200 or res.status_code == 404:
                     return self.session.cookies
                 else:
                     raise Exception('登录失败，请反馈BUG')

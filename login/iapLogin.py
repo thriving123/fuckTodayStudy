@@ -31,7 +31,7 @@ class iapLogin:
 
     def login(self):
         params = {}
-        self.ltInfo = self.session.post(f'{self.host}iap/security/lt', data=json.dumps({})).json()
+        self.ltInfo = self.session.post(f'{self.host}iap/security/lt', data=json.dumps({}), hooks=dict(response=[Utils.checkStatus])).json()
         params['lt'] = self.ltInfo['result']['_lt']
         params['rememberMe'] = 'false'
         params['dllt'] = ''

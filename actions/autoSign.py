@@ -28,7 +28,10 @@ class AutoSign:
         url = f'{self.host}wec-counselor-sign-apps/stu/sign/getStuSignInfosInOneDay'
         self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
         # 第二次请求接口，真正的拿到具体任务
-        res = self.session.post(url, headers=headers, data=json.dumps({}), verify=False).json()
+        res = self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
+        if res.status_code == 404:
+            raise Exception('您没有任何签到任务，请检查自己的任务类型！')
+        res = res.json()
         if len(res['datas']['unSignedTasks']) < 1:
             raise Exception('当前暂时没有未签到的任务哦！')
         # 获取最后的一个任务

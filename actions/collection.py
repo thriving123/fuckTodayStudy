@@ -29,9 +29,11 @@ class Collection:
             "pageNumber": 1
         }
         res = self.session.post(queryUrl, data=json.dumps(params), headers=headers, verify=False)
+        if res.status_code == 404:
+            raise Exception('您没有任何信息收集任务，请检查自己的任务类型！')
         res = res.json()
         if res['datas']['totalSize'] < 1:
-            raise Exception('查询表单失败，请确认你是信息收集并且当前有收集任务。确定请联系开发者')
+            raise Exception('查询表单失败，当前没有信息收集任务哦！')
         self.collectWid = res['datas']['rows'][0]['wid']
         self.formWid = res['datas']['rows'][0]['formWid']
         detailUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/detailCollector'
