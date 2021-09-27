@@ -96,12 +96,12 @@ class AutoSign:
             if os.path.isfile(picBase):
                 picSrc = picBase
             else:
-                picBase = os.listdir(picBase)
+                picDir = os.listdir(picBase)
                 # 如果该文件夹里没有文件
-                if len(picBase) == 0:
+                if len(picDir) == 0:
                     raise Exception("您的图片上传已选择一个文件夹，且文件夹中没有文件！")
                 # 拼接随机图片的图片路径
-                picSrc = os.path.join(picBase, random.choice(picBase))
+                picSrc = os.path.join(picBase, random.choice(picDir))
             self.uploadPicture(picSrc)
             self.form['signPhotoUrl'] = self.getPictureUrl()
         else:
