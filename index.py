@@ -1,5 +1,3 @@
-import time
-
 import yaml
 
 from todayLoginService import TodayLoginService

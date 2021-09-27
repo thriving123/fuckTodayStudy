@@ -1,5 +1,7 @@
 import base64
 import json
+import os
+import random
 import re
 import uuid
 from pyDes import PAD_PKCS5, des, CBC
@@ -91,16 +93,26 @@ class Collection:
             # 只处理必填项
             if formItem['isRequired']:
                 userForm = self.userInfo['forms'][index]['form']
+                # 判断是否忽略该题
+                if 'ignore' in userForm and userForm['ignore']:
+                    # 设置显示为false
+                    formItem['show'] = False
+                    # 清空所有的选项
+                    if 'fieldItems' in formItem:
+                        formItem['fieldItems'].clear()
+                    index += 1
+                    continue
                 # 判断用户是否需要检查标题
                 if self.userInfo['checkTitle'] == 1:
                     # 如果检查到标题不相等
                     if formItem['title'].strip() != userForm['title'].strip():
                         raise Exception(
-                            f'\r\n第{index + 1}个配置项的标题不正确\r\n您的标题为：{userForm["title"]}\r\n系统的标题为：{formItem["title"]}')
-                # 填充多出来的参数（新版增加了三个参数，暂时不知道作用）
+                            f'\r\n第{index + 1}个配置项的标题不正确\r\n您的标题为："{userForm["title"]}"\r\n系统的标题为："{formItem["title"]}"')
+                # 填充多出来的参数（新版增加了四个参数，暂时不知道作用）
                 formItem['show'] = True
                 formItem['formType'] = '0'  # 盲猜是任务类型、待确认
                 formItem['sortNum'] = str(formItem['sort'])  # 盲猜是sort排序
+                formItem['logicShowConfig'] = {}
                 preSelect = []
                 # 文本选项直接赋值
                 if formItem['fieldType'] in ['1', '5', '6', '7']:
@@ -112,6 +124,8 @@ class Collection:
                     # 单选需要移除多余的选项
                     fieldItems = formItem['fieldItems']
                     for fieldItem in fieldItems[:]:
+                        if 'value' not in userForm:
+                            raise Exception(f"第{index + 1}个题目出错，题目标题为{formItem['sort']}{formItem['title']}")
                         if fieldItem['content'] != userForm['value']:
                             fieldItems.remove(fieldItem)
                             # 如果之前被选中
@@ -129,7 +143,7 @@ class Collection:
                                 fieldItem['contentExtend'] = userForm['other']
                     if itemWid == '':
                         raise Exception(
-                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为单选，且未找到您配置的值\r\n您上次的选值为：{ preSelect }'
+                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为单选，且未找到您配置的值\r\n您上次的选值为：{preSelect}'
                         )
                     formItem['value'] = itemWid
                 # 多选填充
@@ -156,13 +170,24 @@ class Collection:
                     # 若多选一个都未选中
                     if len(itemWidArr) == 0:
                         raise Exception(
-                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为多选，且未找到您配置的值\r\n您上次的选值为：{ preSelect }'
+                            f'\r\n第{index + 1}个配置项的选项不正确，该选项为多选，且未找到您配置的值\r\n您上次的选值为：{preSelect}'
                         )
                     formItem['value'] = ','.join(itemWidArr)
                 # 图片（健康码）上传类型
                 elif formItem['fieldType'] == '4':
                     # 如果是传图片的话，那么是将图片的地址（相对/绝对都行）存放于此value中
-                    self.uploadPicture(userForm['value'])
+                    picBase = userForm['value']
+                    # 如果直接是图片
+                    if os.path.isfile(picBase):
+                        picSrc = picBase
+                    else:
+                        picBase = os.listdir(picBase)
+                        # 如果该文件夹里没有文件
+                        if len(picBase) == 0:
+                            raise Exception("您的图片上传已选择一个文件夹，且文件夹中没有文件！")
+                        # 拼接随机图片的图片路径
+                        picSrc = os.path.join(picBase,random.choice(picBase))
+                    self.uploadPicture(picSrc)
                     formItem['value'] = self.getPictureUrl()
                     # 填充其他信息
                     formItem.setdefault('http', {
@@ -178,13 +203,6 @@ class Collection:
                             }
                         }
                     })
-                    # formItem['http']['defaultOptions']['customConfig']['pageNumberKey'] = 'pageNumber'
-                    # formItem['http']['defaultOptions']['customConfig']['pageSizeKey'] = 'pageSize'
-                    # formItem['http']['defaultOptions']['customConfig']['pageDataKey'] = 'pageData'
-                    # formItem['http']['defaultOptions']['customConfig']['pageTotalKey'] = 'pageTotal'
-                    # formItem['http']['defaultOptions']['customConfig']['data'] = 'datas'
-                    # formItem['http']['defaultOptions']['customConfig']['codeKey'] = 'code'
-                    # formItem['http']['defaultOptions']['customConfig']['messageKey'] = 'message'
                     formItem['uploadPolicyUrl'] = '/wec-counselor-collector-apps/stu/oss/getUploadPolicy'
                     formItem['saveAttachmentUrl'] = '/wec-counselor-collector-apps/stu/collector/saveAttachment'
                     formItem['previewAttachmentUrl'] = '/wec-counselor-collector-apps/stu/collector/previewAttachment'

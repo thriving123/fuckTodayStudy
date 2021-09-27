@@ -1,5 +1,7 @@
 import base64
 import json
+import os
+import random
 import re
 import uuid
 from pyDes import PAD_PKCS5, des, CBC
@@ -46,7 +48,7 @@ class sleepCheck:
         self.task = res['datas']
 
     # 上传图片到阿里云oss
-    def uploadPicture(self):
+    def uploadPicture(self, picSrc):
         url = f'{self.host}wec-counselor-sign-apps/stu/oss/getUploadPolicy'
         res = self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps({'fileType': 1}),
                                 verify=False)
@@ -63,7 +65,7 @@ class sleepCheck:
             fields={  # 这里根据需要进行参数格式设置
                 'key': fileName, 'policy': policy, 'OSSAccessKeyId': accessKeyId, 'success_action_status': '200',
                 'signature': signature,
-                'file': ('blob', open(self.userInfo['photo'], 'rb'), 'image/jpg')
+                'file': ('blob', open(picSrc, 'rb'), 'image/jpg')
             })
         headers['Content-Type'] = multipart_encoder.content_type
         res = self.session.post(url=policyHost,
@@ -85,7 +87,19 @@ class sleepCheck:
     def fillForm(self):
         # 判断签到是否需要照片
         if self.task['isPhoto'] == 1:
-            self.uploadPicture()
+            # 如果是需要传图片的话，那么是将图片的地址（相对/绝对都行）存放于此photo中
+            picBase = self.userInfo['photo']
+            # 如果直接是图片
+            if os.path.isfile(picBase):
+                picSrc = picBase
+            else:
+                picBase = os.listdir(picBase)
+                # 如果该文件夹里没有文件
+                if len(picBase) == 0:
+                    raise Exception("您的图片上传已选择一个文件夹，且文件夹中没有文件！")
+                # 拼接随机图片的图片路径
+                picSrc = os.path.join(picBase, random.choice(picBase))
+            self.uploadPicture(picSrc)
             self.form['signPhotoUrl'] = self.getPictureUrl()
         else:
             self.form['signPhotoUrl'] = ''
