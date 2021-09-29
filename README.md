@@ -191,6 +191,12 @@
 
   同时您需要配置的有`myQmsgKey`（qmsg酱生成的）和`sendKey`字段（您的已经在QMSG酱上绑定号的一个QQ号码）
 
+- pushplus推送：
+
+  若您使用pushplus推送，仅仅只需要配置好您的`sendType`为`2`即可
+
+  同时您需要配置的有`sendKey`字段（pushplus的token）
+
 当您配置好以上内容后，将会进行消息推送
 
 ## ⚠更新通知

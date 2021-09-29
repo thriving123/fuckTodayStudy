@@ -2,6 +2,7 @@ import requests
 import time
 from login.Utils import Utils
 
+
 # 获取当前日期，格式为 2021-8-22
 def getNowDate():
     return time.strftime("%Y-%m-%d", time.localtime(time.time()))
@@ -49,16 +50,31 @@ class RlMessage:
         res = requests.post(f'https://qmsg.zendee.cn/send/{self.msgKey}', params).json()
         return res['reason']
 
-    # 其他通知方式待添加
+    # pushplus推送
+    def sendPushplus(self, status, msg):
+        if self.sendKey == '':
+            return 'sendKey为空，已取消发送邮件！'
+        params = {
+            'token': self.sendKey,
+            'title': f'[{status}]今日校园通知',
+            'content': f'[{Utils.getAsiaDate()} {Utils.getAsiaTime()}]{msg}',
+        }
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0'
+        }
+        res = requests.post("https://pushplus.hxtrip.com/send", headers=headers, params=params)
+        if res.status_code == 200:
+            return "发送成功"
+        else:
+            return "发送失败"
 
     # 统一发送接口名
     def send(self, status, msg):
-        print(Utils.getAsiaTime()+' 正在发送邮件通知')
+        print(Utils.getAsiaTime() + ' 正在发送邮件通知')
         if self.sendType == 0:
             return self.sendMail(status, msg)
         elif self.sendType == 1:
             time.sleep(2)
             return self.sendQmsg(status, msg)
         elif self.sendType == 2:
-            # 更多推送方式待添加
-            return
+            return self.sendPushplus(status, msg)
