@@ -18,7 +18,7 @@ class RSALogin:
 
     # 登陆方法
     def login(self):
-        html = self.session.get(self.login_url, verify=False, hooks=dict(response=[Utils.checkStatus])).text
+        html = self.session.get(self.login_url, verify=False).text
         soup = BeautifulSoup(html, 'lxml')
         form = soup.select('#fm1')
         if len(form) == 0:

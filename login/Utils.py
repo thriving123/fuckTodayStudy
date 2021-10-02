@@ -22,7 +22,7 @@ class Utils:
     @staticmethod
     def checkStatus(request, *args, **kwargs):
         if request.status_code == 418:
-            raise Exception('当前地区已被禁用，请使用其他地区的节点')
+            raise Exception('当前地区已被禁用，请使用其他地区的 云函数节点/服务器')
 
     # 获取当前北京时间
     @staticmethod

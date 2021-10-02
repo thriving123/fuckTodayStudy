@@ -1,9 +1,9 @@
 import re
-from urllib.parse import urlparse
+
 
 import requests
 from urllib3.exceptions import InsecureRequestWarning
-
+from fake_useragent import UserAgent
 from login.Utils import Utils
 from login.casLogin import casLogin
 from login.iapLogin import iapLogin
@@ -22,10 +22,18 @@ class TodayLoginService:
         self.password = userInfo['password']
         self.schoolName = userInfo['schoolName']
         self.session = requests.session()
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36',
-        }
+        headers = {'User-Agent': UserAgent().random}
+        # 关闭多余的连接
+        self.session.keep_alive = False
+        # 增加重试次数
+        self.session.adapters.DEFAULT_RETRIES = 5
         self.session.headers = headers
+        # 如果设置了用户的代理，那么该用户将走代理的方式进行访问
+        if 'proxy' in userInfo and userInfo['proxy'] is not None:
+            print(f'{Utils.getAsiaTime()} 检测到代理ip配置，正在使用代理')
+            self.session.proxies = {'http': userInfo['proxy'], 'https': userInfo['proxy']}
+        # 添加hooks进行拦截判断该请求是否被418拦截
+        self.session.hooks['response'].append(Utils.checkStatus)
         self.login_url = ''
         self.host = ''
         self.login_host = ''

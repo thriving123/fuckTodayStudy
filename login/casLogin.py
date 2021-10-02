@@ -30,7 +30,7 @@ class casLogin:
             return flag['isNeed']
 
     def login(self):
-        html = self.session.get(self.login_url, verify=False, hooks=dict(response=[Utils.checkStatus])).text
+        html = self.session.get(self.login_url, verify=False).text
         soup = BeautifulSoup(html, 'lxml')
         form = soup.select('#casLoginForm')
         if len(form) == 0:
