@@ -4,7 +4,7 @@ author: 若离QQ：2909998156
 # 特别提示：调试完成后请记得将debug改为false
 # 特别提示：调试完成后请记得将debug改为false
 debug: false
-# 推送方式：0：邮件推送；1：qmsg推送；2：待添加更多推送
+# 推送方式：0：邮件推送；1：qmsg推送；2：pushplus推送
 sendType: 0
 # 当且仅当sendType为0时有用，邮箱API的地址
 emailApiUrl: 'https://api.ruoli.cc/sendMail'
@@ -32,7 +32,7 @@ users:
       password: ''
       # 地址信息
       address: '宜宾市（自己改）'
-      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码
+      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码，当sendType为2时代表接收消息的pushplus token
       sendKey: ''
       # 附上经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
       #lon 经度
@@ -80,7 +80,7 @@ users:
         password: ''
         # 定位位置信息
         address: '四川省（自己改）'
-        #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码
+        #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码，当sendType为2时代表接收消息的pushplus token
         sendKey: ''
         # 附上经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
         # 经纬度信息
@@ -126,7 +126,7 @@ users:
       password: ''
       #address 地址，定位信息
       address: ''
-      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码
+      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码，当sendType为2时代表接收消息的pushplus token
       sendKey: ''
       #school 学校全称
       schoolName: 武汉船舶职业技术学院
@@ -165,7 +165,7 @@ users:
       password: ''
       # 地址信息
       address: ''
-      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码
+      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码，当sendType为2时代表接收消息的pushplus token
       sendKey: ''
       # 附上经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
       #lon 经度
