@@ -1,9 +1,9 @@
+import random
 import re
 
 
 import requests
 from urllib3.exceptions import InsecureRequestWarning
-from fake_useragent import UserAgent
 from login.Utils import Utils
 from login.casLogin import casLogin
 from login.iapLogin import iapLogin
@@ -22,7 +22,7 @@ class TodayLoginService:
         self.password = userInfo['password']
         self.schoolName = userInfo['schoolName']
         self.session = requests.session()
-        headers = {'User-Agent': UserAgent().random}
+        headers = {'User-Agent': random.choice(Utils.getUserAgents())}
         # 关闭多余的连接
         self.session.keep_alive = False
         # 增加重试次数
