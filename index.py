@@ -1,5 +1,5 @@
 import yaml
-
+import traceback
 from todayLoginService import TodayLoginService
 from actions.autoSign import AutoSign
 from actions.collection import Collection
@@ -22,17 +22,15 @@ def main():
     for index, user in enumerate(config['users']):
         print(f'{Utils.getAsiaTime()} 第{index + 1}个用户正在执行...')
         rl = RlMessage(user['user']['sendKey'], config['emailApiUrl'], config['myQmsgKey'], config['sendType'])
-        if config['debug']:
+        try:
             msg = working(user)
-        else:
-            try:
-                msg = working(user)
-            except Exception as e:
-                msg = str(e)
-                print(Utils.getAsiaTime() + ' ' + msg)
-                msg = rl.send('error', msg)
-                print(Utils.getAsiaTime() + ' ' + msg)
-                continue
+        except Exception as e:
+            print(traceback.format_exc())
+            msg = str(e)
+            print(Utils.getAsiaTime() + ' ' + msg)
+            msg = rl.send('error', msg)
+            print(Utils.getAsiaTime() + ' ' + msg)
+            continue
         print(Utils.getAsiaTime() + ' ' + msg)
         msg = Utils.getAsiaTime() + ' ' + rl.send('maybe', msg)
         print(msg)
