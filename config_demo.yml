@@ -1,9 +1,4 @@
 author: 若离QQ：2909998156
-# 调试模式，用于寻找错误出现的坐标，默认为false
-# 特别提示：调试完成后请记得将debug改为false
-# 特别提示：调试完成后请记得将debug改为false
-# 特别提示：调试完成后请记得将debug改为false
-debug: false
 # 推送方式：0：邮件推送；1：qmsg推送；2：pushplus推送
 sendType: 0
 # 当且仅当sendType为0时有用，邮箱API的地址
