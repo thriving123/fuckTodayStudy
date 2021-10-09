@@ -8,7 +8,7 @@ from pyDes import PAD_PKCS5, des, CBC
 from requests_toolbelt import MultipartEncoder
 
 from todayLoginService import TodayLoginService
-
+from liteTools import DT
 
 class sleepCheck:
     # 初始化信息收集类
@@ -29,7 +29,7 @@ class sleepCheck:
         res = self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
         if res.status_code == 404:
             raise Exception('您没有任何查寝任务，请检查自己的任务类型！')
-        res = res.json()
+        res = DT.resJsonEncode(res)
         if len(res['datas']['unSignedTasks']) < 1:
             raise Exception('当前暂时没有未签到的任务哦！')
         # 获取最后的一个任务
@@ -44,7 +44,8 @@ class sleepCheck:
         url = f'{self.host}wec-counselor-attendance-apps/student/attendance/detailSignInstance'
         headers = self.session.headers
         headers['Content-Type'] = 'application/json'
-        res = self.session.post(url, headers=headers, data=json.dumps(self.taskInfo), verify=False).json()
+        res = self.session.post(url, headers=headers, data=json.dumps(self.taskInfo), verify=False)
+        res = DT.resJsonEncode(res)
         self.task = res['datas']
 
     # 上传图片到阿里云oss
@@ -52,7 +53,7 @@ class sleepCheck:
         url = f'{self.host}wec-counselor-sign-apps/stu/oss/getUploadPolicy'
         res = self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps({'fileType': 1}),
                                 verify=False)
-        datas = res.json().get('datas')
+        datas = DT.resJsonEncode(res).get('datas')
         fileName = datas.get('fileName')
         policy = datas.get('policy')
         accessKeyId = datas.get('accessid')
@@ -79,7 +80,7 @@ class sleepCheck:
         params = {'ossKey': self.fileName}
         res = self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps(params),
                                 verify=False)
-        photoUrl = res.json().get('datas')
+        photoUrl = DT.resJsonEncode(res).get('datas')
         return photoUrl
 
 
@@ -144,5 +145,6 @@ class sleepCheck:
             'Connection': 'Keep-Alive'
         }
         res = self.session.post(f'{self.host}wec-counselor-attendance-apps/student/attendance/submitSign', headers=headers,
-                                data=json.dumps(self.form), verify=False).json()
+                                data=json.dumps(self.form), verify=False)
+        res = DT.resJsonEncode(res)
         return res['message']

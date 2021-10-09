@@ -1,4 +1,3 @@
-import yaml
 import traceback
 from todayLoginService import TodayLoginService
 from actions.autoSign import AutoSign
@@ -7,21 +6,23 @@ from actions.workLog import workLog
 from actions.sleepCheck import sleepCheck
 from actions.rlMessage import RlMessage
 from login.Utils import Utils
+from liteTools import DT, RT
 
 
-def getYmlConfig(yaml_file='config.yml'):
-    file = open(yaml_file, 'r', encoding="utf-8")
-    file_data = file.read()
-    file.close()
-    config = yaml.load(file_data, Loader=yaml.FullLoader)
-    return dict(config)
+def getConfig():
+    config = DT.loadYml('config.yml')
+    for user in config['users']:
+        # 坐标随机偏移
+        user['lon'], user['lat'] = RT.locationOffset(
+            user['lon'], user['lat'], config.get('locationOffsetRange', 50))
 
 
 def main():
-    config = getYmlConfig()
+    config = getConfig()
     for index, user in enumerate(config['users']):
         print(f'{Utils.getAsiaTime()} 第{index + 1}个用户正在执行...')
-        rl = RlMessage(user['user']['sendKey'], config['emailApiUrl'], config['myQmsgKey'], config['sendType'])
+        rl = RlMessage(user['user']['sendKey'], config['emailApiUrl'],
+                       config['myQmsgKey'], config['sendType'])
         try:
             msg = working(user)
         except Exception as e:
