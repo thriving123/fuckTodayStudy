@@ -31,7 +31,8 @@ class Collection:
             'pageSize': 20,
             "pageNumber": 1
         }
-        res = self.session.post(queryUrl, data=json.dumps(params), headers=headers, verify=False)
+        res = self.session.post(queryUrl, data=json.dumps(
+            params), headers=headers, verify=False)
         if res.status_code == 404:
             raise Exception('您没有任何信息收集任务，请检查自己的任务类型！')
         res = DT.resJsonEncode(res)
@@ -45,8 +46,10 @@ class Collection:
         res = DT.resJsonEncode(res)
         self.schoolTaskWid = res['datas']['collector']['schoolTaskWid']
         getFormUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/getFormFields'
-        params = {"pageSize": 100, "pageNumber": 1, "formWid": self.formWid, "collectorWid": self.collectWid}
-        res = self.session.post(getFormUrl, headers=headers, data=json.dumps(params), verify=False)
+        params = {"pageSize": 100, "pageNumber": 1,
+                  "formWid": self.formWid, "collectorWid": self.collectWid}
+        res = self.session.post(
+            getFormUrl, headers=headers, data=json.dumps(params), verify=False)
         res = DT.resJsonEncode(res)
         self.form = res['datas']['rows']
 
@@ -128,7 +131,8 @@ class Collection:
                     fieldItems = formItem['fieldItems']
                     for fieldItem in fieldItems[:]:
                         if 'value' not in userForm:
-                            raise Exception(f"第{index + 1}个题目出错，题目标题为{formItem['sort']}{formItem['title']}")
+                            raise Exception(
+                                f"第{index + 1}个题目出错，题目标题为{formItem['sort']}{formItem['title']}")
                         if fieldItem['content'] != userForm['value']:
                             fieldItems.remove(fieldItem)
                             # 如果之前被选中
@@ -249,7 +253,8 @@ class Collection:
             "latitude": self.userInfo['lat'], 'longitude': self.userInfo['lon']
         }
         submitUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/submitForm'
-        res = self.session.post(submitUrl, headers=headers, data=json.dumps(params), verify=False)
+        res = self.session.post(
+            submitUrl, headers=headers, data=json.dumps(params), verify=False)
         res = DT.resJsonEncode(res)
         return res['message']
 

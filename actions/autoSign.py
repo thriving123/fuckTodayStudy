@@ -29,9 +29,11 @@ class AutoSign:
         headers['Content-Type'] = 'application/json'
         # 第一次请求接口获取cookies（MOD_AUTH_CAS）
         url = f'{self.host}wec-counselor-sign-apps/stu/sign/getStuSignInfosInOneDay'
-        self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
+        self.session.post(url, headers=headers,
+                          data=json.dumps({}), verify=False)
         # 第二次请求接口，真正的拿到具体任务
-        res = self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
+        res = self.session.post(url, headers=headers,
+                                data=json.dumps({}), verify=False)
         if res.status_code == 404:
             raise Exception('您没有任何签到任务，请检查自己的任务类型！')
         res = DT.resJsonEncode(res)
@@ -49,7 +51,8 @@ class AutoSign:
         url = f'{self.host}wec-counselor-sign-apps/stu/sign/detailSignInstance'
         headers = self.session.headers
         headers['Content-Type'] = 'application/json'
-        res = self.session.post(url, headers=headers, data=json.dumps(self.taskInfo), verify=False)
+        res = self.session.post(url, headers=headers,
+                                data=json.dumps(self.taskInfo), verify=False)
         res = DT.resJsonEncode(res)
         self.task = res['datas']
 
@@ -75,8 +78,8 @@ class AutoSign:
             })
         headers['Content-Type'] = multipart_encoder.content_type
         self.session.post(url=policyHost,
-                                headers=headers,
-                                data=multipart_encoder)
+                          headers=headers,
+                          data=multipart_encoder)
         self.fileName = fileName
 
     # 获取图片上传位置
@@ -152,7 +155,8 @@ class AutoSign:
                             extraFieldItemValue['extraFieldItemValue'] = userItem['value']
                         extraFieldItemValues.append(extraFieldItemValue)
                 if not flag:
-                    raise Exception(f'\r\n第{ i + 1 }个配置出错了\r\n表单未找到你设置的值：{userItem["value"]}\r\n，你上次系统选的值为：{ ",".join(data) }')
+                    raise Exception(
+                        f'\r\n第{ i + 1 }个配置出错了\r\n表单未找到你设置的值：{userItem["value"]}\r\n，你上次系统选的值为：{ ",".join(data) }')
             self.form['extraFieldItems'] = extraFieldItemValues
         self.form['signInstanceWid'] = self.task['signInstanceWid']
         self.form['longitude'] = self.userInfo['lon']
@@ -161,7 +165,7 @@ class AutoSign:
         self.form['abnormalReason'] = self.userInfo['abnormalReason']
         self.form['position'] = self.userInfo['address']
         self.form['uaIsCpadaily'] = True
-        self.form['signVersion'] ='1.0.0'
+        self.form['signVersion'] = '1.0.0'
 
     # DES加密
     def DESEncrypt(self, s, key='b3L26XNL'):

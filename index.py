@@ -12,9 +12,11 @@ from liteTools import DT, RT
 def getConfig():
     config = DT.loadYml('config.yml')
     for user in config['users']:
+        user = user['user']
         # 坐标随机偏移
         user['lon'], user['lat'] = RT.locationOffset(
             user['lon'], user['lat'], config.get('locationOffsetRange', 50))
+    return config
 
 
 def main():

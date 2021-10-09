@@ -10,6 +10,7 @@ from requests_toolbelt import MultipartEncoder
 from todayLoginService import TodayLoginService
 from liteTools import DT
 
+
 class sleepCheck:
     # 初始化信息收集类
     def __init__(self, todaLoginService: TodayLoginService, userInfo):
@@ -19,14 +20,17 @@ class sleepCheck:
         self.taskInfo = None
         self.form = {}
     # 获取未签到任务
+
     def getUnSignedTasks(self):
         headers = self.session.headers
         headers['Content-Type'] = 'application/json'
         # 第一次请求接口获取cookies（MOD_AUTH_CAS）
         url = f'{self.host}wec-counselor-attendance-apps/student/attendance/getStuAttendacesInOneDay'
-        self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
+        self.session.post(url, headers=headers,
+                          data=json.dumps({}), verify=False)
         # 第二次请求接口，真正的拿到具体任务
-        res = self.session.post(url, headers=headers, data=json.dumps({}), verify=False)
+        res = self.session.post(url, headers=headers,
+                                data=json.dumps({}), verify=False)
         if res.status_code == 404:
             raise Exception('您没有任何查寝任务，请检查自己的任务类型！')
         res = DT.resJsonEncode(res)
@@ -44,7 +48,8 @@ class sleepCheck:
         url = f'{self.host}wec-counselor-attendance-apps/student/attendance/detailSignInstance'
         headers = self.session.headers
         headers['Content-Type'] = 'application/json'
-        res = self.session.post(url, headers=headers, data=json.dumps(self.taskInfo), verify=False)
+        res = self.session.post(url, headers=headers,
+                                data=json.dumps(self.taskInfo), verify=False)
         res = DT.resJsonEncode(res)
         self.task = res['datas']
 
@@ -83,8 +88,8 @@ class sleepCheck:
         photoUrl = DT.resJsonEncode(res).get('datas')
         return photoUrl
 
-
     # 填充表单
+
     def fillForm(self):
         # 判断签到是否需要照片
         if self.task['isPhoto'] == 1:
@@ -113,8 +118,8 @@ class sleepCheck:
         self.form['qrUuid'] = ''
         self.form['uaIsCpadaily'] = True
 
-
     # DES加密
+
     def DESEncrypt(self, s, key='b3L26XNL'):
         key = key
         iv = b"\x01\x02\x03\x04\x05\x06\x07\x08"
