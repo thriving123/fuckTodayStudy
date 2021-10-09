@@ -8,6 +8,7 @@ from pyDes import PAD_PKCS5, des, CBC
 from requests_toolbelt import MultipartEncoder
 
 from todayLoginService import TodayLoginService
+from liteTools import DT
 
 
 class Collection:
@@ -33,18 +34,20 @@ class Collection:
         res = self.session.post(queryUrl, data=json.dumps(params), headers=headers, verify=False)
         if res.status_code == 404:
             raise Exception('您没有任何信息收集任务，请检查自己的任务类型！')
-        res = res.json()
+        res = DT.resJsonEncode(res)
         if res['datas']['totalSize'] < 1:
             raise Exception('查询表单失败，当前没有信息收集任务哦！')
         self.collectWid = res['datas']['rows'][0]['wid']
         self.formWid = res['datas']['rows'][0]['formWid']
         detailUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/detailCollector'
         res = self.session.post(detailUrl, headers=headers, data=json.dumps({'collectorWid': self.collectWid}),
-                                verify=False).json()
+                                verify=False)
+        res = DT.resJsonEncode(res)
         self.schoolTaskWid = res['datas']['collector']['schoolTaskWid']
         getFormUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/getFormFields'
         params = {"pageSize": 100, "pageNumber": 1, "formWid": self.formWid, "collectorWid": self.collectWid}
-        res = self.session.post(getFormUrl, headers=headers, data=json.dumps(params), verify=False).json()
+        res = self.session.post(getFormUrl, headers=headers, data=json.dumps(params), verify=False)
+        res = DT.resJsonEncode(res)
         self.form = res['datas']['rows']
 
     # 上传图片到阿里云oss
@@ -53,7 +56,7 @@ class Collection:
         res = self.session.post(url=url, headers={'content-type': 'application/json'},
                                 data=json.dumps({'fileType': 1}),
                                 verify=False)
-        datas = res.json().get('datas')
+        datas = DT.resJsonEncode(res).get('datas')
         print(datas)
         fileName = datas.get('fileName')
         policy = datas.get('policy')
@@ -82,7 +85,7 @@ class Collection:
         params = {'ossKey': self.fileName}
         res = self.session.post(url=url, headers={'content-type': 'application/json'}, data=json.dumps(params),
                                 verify=False)
-        photoUrl = res.json().get('datas') + '.png'
+        photoUrl = DT.resJsonEncode(res).get('datas') + '.png'
         print('图片地址：' + photoUrl)
         return photoUrl
 
@@ -246,8 +249,9 @@ class Collection:
             "latitude": self.userInfo['lat'], 'longitude': self.userInfo['lon']
         }
         submitUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/submitForm'
-        data = self.session.post(submitUrl, headers=headers, data=json.dumps(params), verify=False).json()
-        return data['message']
+        res = self.session.post(submitUrl, headers=headers, data=json.dumps(params), verify=False)
+        res = DT.resJsonEncode(res)
+        return res['message']
 
     # DES加密
     def DESEncrypt(self, content):

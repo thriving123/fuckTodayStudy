@@ -5,7 +5,7 @@ import uuid
 from pyDes import PAD_PKCS5, des, CBC
 
 from todayLoginService import TodayLoginService
-
+from liteTools import DT
 
 # 教师工作日志类
 class workLog:
@@ -34,7 +34,7 @@ class workLog:
         res = self.session.post(url, data=json.dumps(params), verify=False)
         if res.status_code == 404:
             raise Exception('您没有任何工作日志任务，请检查自己的任务类型！')
-        res = res.json()
+        res = DT.resJsonEncode(res)
         self.collectWid = res['datas']['rows'][0]['wid']
         url = f'{self.host}wec-counselor-worklog-apps/worklog/list'
         params = {
@@ -42,7 +42,8 @@ class workLog:
             'pageNumber': '1',
             'pageSize': '20'
         }
-        res = self.session.post(url, data=json.dumps(params), verify=False).json()
+        res = self.session.post(url, data=json.dumps(params), verify=False)
+        res = DT.resJsonEncode(res)
         for item in res['datas']['rows']:
             if item['status'] == 0:
                 self.formWids.append(item['wid'])
@@ -57,7 +58,8 @@ class workLog:
             params = {
                 'wid': wid
             }
-            res = self.session.post(url, data=json.dumps(params), verify=False).json()
+            res = self.session.post(url, data=json.dumps(params), verify=False)
+            res = DT.resJsonEncode(res)
             self.forms.append(res['datas']['form'])
 
     # 填充表单
@@ -134,13 +136,15 @@ class workLog:
             "longitude": self.userInfo['lon'],
             "latitude": self.userInfo['lat']
         }
-        res = self.session.post(url, data=json.dumps(params), headers=headers, verify=False).json()
+        res = self.session.post(url, data=json.dumps(params), headers=headers, verify=False)
+        res = DT.resJsonEncode(res)
         if res['message'] == 'SUCCESS':
             url = f'{self.host}wec-counselor-worklog-apps/worklog/detail'
             params = {
                 'wid': worklogWid
             }
-            res = self.session.post(url, data=json.dumps(params), verify=False).json()
+            res = self.session.post(url, data=json.dumps(params), verify=False)
+            res = DT.resJsonEncode(res)
             form = res['datas']['form']
             return form
         else:
@@ -158,7 +162,8 @@ class workLog:
                 'operationType': 1
             }
             res = self.session.post(f'{self.host}wec-counselor-worklog-apps/worklog/update', data=json.dumps(params),
-                                    verify=False).json()
+                                    verify=False)
+            res = DT.resJsonEncode(res)
             result.append(res['message'])
         return str(result)
 
@@ -169,7 +174,8 @@ class workLog:
             'formWid': self.collectWid
         }
         res = self.session.post(f'{self.host}wec-counselor-worklog-apps/worklog/template/detail',
-                                data=json.dumps(params), verify=False).json()
+                                data=json.dumps(params), verify=False)
+        res = DT.resJsonEncode(res)
         formTemplate = res['datas']['content']
         for formItem in formTemplate:
             formItem.pop('fieldItems')
@@ -179,7 +185,8 @@ class workLog:
             'formWid': str(self.collectWid),
             'operationType': 0
         }
-        res = self.session.post(f'{self.host}wec-counselor-worklog-apps/worklog/update', data=json.dumps(params)).json()
+        res = self.session.post(f'{self.host}wec-counselor-worklog-apps/worklog/update', data=json.dumps(params))
+        res = DT.resJsonEncode(res)
         if res['message'] == 'SUCCESS':
             self.formWids.append(res['datas']['wid'])
         else:
