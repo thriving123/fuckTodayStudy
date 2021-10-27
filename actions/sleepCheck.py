@@ -7,18 +7,20 @@ import uuid
 from pyDes import PAD_PKCS5, des, CBC
 from requests_toolbelt import MultipartEncoder
 
+from login.Utils import Utils
 from todayLoginService import TodayLoginService
 from liteTools import DT
 
 
 class sleepCheck:
     # 初始化信息收集类
-    def __init__(self, todaLoginService: TodayLoginService, userInfo):
+    def __init__(self, todaLoginService: TodayLoginService, userInfo, encryptApi):
         self.session = todaLoginService.session
         self.host = todaLoginService.host
         self.userInfo = userInfo
         self.taskInfo = None
         self.form = {}
+        self.encryptApi = encryptApi
     # 获取未签到任务
 
     def getUnSignedTasks(self):
@@ -129,15 +131,18 @@ class sleepCheck:
 
     # 提交签到信息
     def submitForm(self):
+        deviceId = str(uuid.uuid1())
+        model = "RuoLi Phone Plus Pro Max 2021"
+        appVersion = "9.0.12"
         extension = {
-            "model": "OPPO R11 Plus",
-            "appVersion": "8.1.14",
-            "systemVersion": "4.4.4",
+            "model": model,
+            "appVersion": appVersion,
+            "systemVersion": "11",
             "userId": self.userInfo['username'],
             "systemName": "android",
             "lat": self.userInfo['lat'],
             "lon": self.userInfo['lon'],
-            "deviceId": str(uuid.uuid1())
+            "deviceId": deviceId
         }
         headers = {
             'User-Agent': self.session.headers['User-Agent'],
@@ -149,7 +154,30 @@ class sleepCheck:
             'Host': re.findall('//(.*?)/', self.host)[0],
             'Connection': 'Keep-Alive'
         }
+        forSubmit = {
+            "appVersion": appVersion,
+            "deviceId": deviceId,
+            "lat": self.userInfo['lat'],
+            "lon": self.userInfo['lon'],
+            "model": model,
+            "systemName": "android",
+            "systemVersion": "11",
+            "userId": self.userInfo['username'],
+        }
+        forBody = json.dumps(self.form, ensure_ascii=False)
+        print(f'{Utils.getAsiaTime()} 正在请求加密数据...')
+        res = self.session.post(self.encryptApi, params=forSubmit, data=forBody.encode("utf-8"), verify=False)
+        if res.status_code != 200:
+            raise Exception("加密表单数据出错，请反馈")
+        res = res.json()
+        if res['status'] != 200:
+            raise Exception(res['message'])
+        forSubmit['version'] = 'first_v2'
+        forSubmit['calVersion'] = 'firstv'
+        forSubmit['bodyString'] = res['data']['bodyString']
+        forSubmit['sign'] = res['data']['sign']
+
         res = self.session.post(f'{self.host}wec-counselor-attendance-apps/student/attendance/submitSign', headers=headers,
-                                data=json.dumps(self.form), verify=False)
+                                data=json.dumps(forSubmit), verify=False)
         res = DT.resJsonEncode(res)
         return res['message']

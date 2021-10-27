@@ -21,12 +21,13 @@ def getConfig():
 
 def main():
     config = getConfig()
+    encryptApi = config['encryptApi']
     for index, user in enumerate(config['users']):
         print(f'{Utils.getAsiaTime()} 第{index + 1}个用户正在执行...')
         rl = RlMessage(user['user']['sendKey'], config['emailApiUrl'],
                        config['myQmsgKey'], config['sendType'])
         try:
-            msg = working(user)
+            msg = working(user, encryptApi)
         except Exception as e:
             print(traceback.format_exc())
             msg = str(e)
@@ -40,7 +41,7 @@ def main():
         print(f"{Utils.getAsiaTime()} 第{index + 1}个用户执行完毕！")
 
 
-def working(user):
+def working(user, encryptApi):
     print(f'{Utils.getAsiaTime()} 正在获取登录地址')
     today = TodayLoginService(user['user'])
     print(f'{Utils.getAsiaTime()} 正在登录ing')
@@ -50,7 +51,7 @@ def working(user):
     if user['user']['type'] == 0:
         # 以下代码是信息收集的代码
         print(f'{Utils.getAsiaTime()} 正在进行“信息收集”...')
-        collection = Collection(today, user['user'])
+        collection = Collection(today, user['user'], encryptApi)
         collection.queryForm()
         collection.fillForm()
         msg = collection.submitForm()
@@ -58,7 +59,7 @@ def working(user):
     elif user['user']['type'] == 1:
         # 以下代码是签到的代码
         print(f'{Utils.getAsiaTime()} 正在进行“签到”...')
-        sign = AutoSign(today, user['user'])
+        sign = AutoSign(today, user['user'], encryptApi)
         sign.getUnSignTask()
         sign.getDetailTask()
         sign.fillForm()
@@ -67,7 +68,7 @@ def working(user):
     elif user['user']['type'] == 2:
         # 以下代码是查寝的代码
         print(f'{Utils.getAsiaTime()} 正在进行“查寝”...')
-        check = sleepCheck(today, user['user'])
+        check = sleepCheck(today, user['user'], encryptApi)
         check.getUnSignedTasks()
         check.getDetailTask()
         check.fillForm()
@@ -76,7 +77,7 @@ def working(user):
     elif user['user']['type'] == 3:
         # 以下代码是工作日志的代码
         print(f'{Utils.getAsiaTime()} 正在进行“工作日志”...')
-        work = workLog(today, user['user'])
+        work = workLog(today, user['user'], encryptApi)
         work.checkHasLog()
         work.getFormsByWids()
         work.fillForms()

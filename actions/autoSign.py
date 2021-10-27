@@ -8,13 +8,14 @@ import uuid
 from pyDes import des, CBC, PAD_PKCS5
 from requests_toolbelt import MultipartEncoder
 
+from login.Utils import Utils
 from todayLoginService import TodayLoginService
 from liteTools import DT
 
 
 class AutoSign:
     # 初始化签到类
-    def __init__(self, todayLoginService: TodayLoginService, userInfo):
+    def __init__(self, todayLoginService: TodayLoginService, userInfo, encryptApi):
         self.session = todayLoginService.session
         self.host = todayLoginService.host
         self.userInfo = userInfo
@@ -22,6 +23,7 @@ class AutoSign:
         self.task = None
         self.form = {}
         self.fileName = None
+        self.encryptApi = encryptApi
 
     # 获取未签到的任务
     def getUnSignTask(self):
@@ -177,15 +179,18 @@ class AutoSign:
 
     # 提交签到信息
     def submitForm(self):
+        deviceId = str(uuid.uuid1())
+        model = "RuoLi Phone Plus Pro Max 2021"
+        appVersion = "9.0.12"
         extension = {
             "lon": self.userInfo['lon'],
-            "model": "OPPO R11 Plus",
-            "appVersion": "8.1.14",
-            "systemVersion": "4.4.4",
+            "model": model,
+            "appVersion": appVersion,
+            "systemVersion": "11",
             "userId": self.userInfo['username'],
             "systemName": "android",
             "lat": self.userInfo['lat'],
-            "deviceId": str(uuid.uuid1())
+            "deviceId": deviceId
         }
         headers = {
             'User-Agent': self.session.headers['User-Agent'],
@@ -197,8 +202,31 @@ class AutoSign:
             'Host': re.findall('//(.*?)/', self.host)[0],
             'Connection': 'Keep-Alive'
         }
-        # print(json.dumps(self.form))
+
+        forSubmit = {
+            "appVersion": appVersion,
+            "deviceId": deviceId,
+            "lat": self.userInfo['lat'],
+            "lon": self.userInfo['lon'],
+            "model": model,
+            "systemName": "android",
+            "systemVersion": "11",
+            "userId": self.userInfo['username'],
+        }
+        forBody = json.dumps(self.form, ensure_ascii=False)
+        print(f'{Utils.getAsiaTime()} 正在请求加密数据...')
+        res = self.session.post(self.encryptApi, params=forSubmit, data=forBody.encode("utf-8"), verify=False)
+        if res.status_code != 200:
+            raise Exception("加密表单数据出错，请反馈")
+        res = res.json()
+        if res['status'] != 200:
+            raise Exception(res['message'])
+        forSubmit['version'] = 'first_v2'
+        forSubmit['calVersion'] = 'firstv'
+        forSubmit['bodyString'] = res['data']['bodyString']
+        forSubmit['sign'] = res['data']['sign']
+
         res = self.session.post(f'{self.host}wec-counselor-sign-apps/stu/sign/submitSign', headers=headers,
-                                data=json.dumps(self.form), verify=False)
+                                data=json.dumps(forSubmit), verify=False)
         res = DT.resJsonEncode(res)
         return res['message']

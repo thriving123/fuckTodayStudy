@@ -5,10 +5,11 @@ sendType: 0
 emailApiUrl: 'https://api.ruoli.cc/sendMail'
 # 当且仅当sendType为1时有用，qmsg的Key（如需使用请自行更改）
 myQmsgKey: ''
+# 这个是提交数据进行加密的api接口
+encryptApi: 'https://api.ruoli.cc/wise/getEncription'
 
 
-
-#用户组配置
+# 用户组配置
 ##################################################
 # 温馨提示：请仔细注意每个模板是属于哪个任务类型的配置！##
 ##################################################

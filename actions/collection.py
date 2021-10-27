@@ -7,13 +7,14 @@ import uuid
 from pyDes import PAD_PKCS5, des, CBC
 from requests_toolbelt import MultipartEncoder
 
+from login.Utils import Utils
 from todayLoginService import TodayLoginService
 from liteTools import DT
 
 
 class Collection:
     # 初始化信息收集类
-    def __init__(self, todaLoginService: TodayLoginService, userInfo):
+    def __init__(self, todaLoginService: TodayLoginService, userInfo, encryptApi):
         self.session = todaLoginService.session
         self.host = todaLoginService.host
         self.userInfo = userInfo
@@ -21,6 +22,7 @@ class Collection:
         self.collectWid = None
         self.formWid = None
         self.schoolTaskWid = None
+        self.encryptApi = encryptApi
 
     # 查询表单
     def queryForm(self):
@@ -225,15 +227,18 @@ class Collection:
 
     # 提交表单
     def submitForm(self):
+        deviceId = str(uuid.uuid1())
+        model = "RuoLi Phone Plus Pro Max 2021"
+        appVersion = "9.0.12"
         extension = {
-            "model": "OPPO R11 Plus",
-            "appVersion": "8.2.14",
-            "systemVersion": "9.1.0",
+            "model": model,
+            "appVersion": appVersion,
+            "systemVersion": "11",
             "userId": self.userInfo['username'],
             "systemName": "android",
             "lon": self.userInfo['lon'],
             "lat": self.userInfo['lat'],
-            "deviceId": str(uuid.uuid1())
+            "deviceId": deviceId
         }
 
         headers = {
@@ -247,14 +252,38 @@ class Collection:
             'Connection': 'Keep-Alive',
             'Accept-Encoding': 'gzip'
         }
-        params = {
+
+        forBody = {
             "formWid": self.formWid, "address": self.userInfo['address'], "collectWid": self.collectWid,
             "schoolTaskWid": self.schoolTaskWid, "form": self.form, "uaIsCpadaily": True,
             "latitude": self.userInfo['lat'], 'longitude': self.userInfo['lon']
         }
+
+        forSubmit = {
+            "appVersion": appVersion,
+            "deviceId": deviceId,
+            "lat": self.userInfo['lat'],
+            "lon": self.userInfo['lon'],
+            "model": model,
+            "systemName": "android",
+            "systemVersion": "11",
+            "userId": self.userInfo['username'],
+        }
+        forBody = json.dumps(forBody, ensure_ascii=False)
+        print(f'{Utils.getAsiaTime()} 正在请求加密数据...')
+        res = self.session.post(self.encryptApi, params=forSubmit, data=forBody.encode("utf-8"), verify=False)
+        if res.status_code != 200:
+            raise Exception("加密表单数据出错，请反馈")
+        res = res.json()
+        if res['status'] != 200:
+            raise Exception(res['message'])
+        forSubmit['version'] = 'first_v2'
+        forSubmit['calVersion'] = 'firstv'
+        forSubmit['bodyString'] = res['data']['bodyString']
+        forSubmit['sign'] = res['data']['sign']
         submitUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/submitForm'
         res = self.session.post(
-            submitUrl, headers=headers, data=json.dumps(params), verify=False)
+            submitUrl, headers=headers, data=json.dumps(forSubmit), verify=False)
         res = DT.resJsonEncode(res)
         return res['message']
 
