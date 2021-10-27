@@ -22,6 +22,7 @@ class Collection:
         self.collectWid = None
         self.formWid = None
         self.schoolTaskWid = None
+        self.instanceWid = None
         self.encryptApi = encryptApi
 
     # 查询表单
@@ -42,14 +43,15 @@ class Collection:
             raise Exception('查询表单失败，当前没有信息收集任务哦！')
         self.collectWid = res['datas']['rows'][0]['wid']
         self.formWid = res['datas']['rows'][0]['formWid']
+        self.instanceWid = res['datas']['rows'][0]['instanceWid']
         detailUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/detailCollector'
-        res = self.session.post(detailUrl, headers=headers, data=json.dumps({'collectorWid': self.collectWid}),
+        res = self.session.post(detailUrl, headers=headers, data=json.dumps({'collectorWid': self.collectWid,'instanceWid': self.instanceWid}),
                                 verify=False)
         res = DT.resJsonEncode(res)
         self.schoolTaskWid = res['datas']['collector']['schoolTaskWid']
         getFormUrl = f'{self.host}wec-counselor-collector-apps/stu/collector/getFormFields'
         params = {"pageSize": 100, "pageNumber": 1,
-                  "formWid": self.formWid, "collectorWid": self.collectWid}
+                  "formWid": self.formWid, "collectorWid": self.collectWid, "instanceWid": self.instanceWid}
         res = self.session.post(
             getFormUrl, headers=headers, data=json.dumps(params), verify=False)
         res = DT.resJsonEncode(res)
@@ -255,6 +257,7 @@ class Collection:
 
         forBody = {
             "formWid": self.formWid, "address": self.userInfo['address'], "collectWid": self.collectWid,
+            "instanceWid": self.instanceWid,
             "schoolTaskWid": self.schoolTaskWid, "form": self.form, "uaIsCpadaily": True,
             "latitude": self.userInfo['lat'], 'longitude': self.userInfo['lon']
         }
