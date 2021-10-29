@@ -179,7 +179,6 @@ class AutoSign:
 
     # 提交签到信息
     def submitForm(self):
-        deviceId = str(uuid.uuid1())
         model = "RuoLi Phone Plus Pro Max 2021"
         appVersion = "9.0.12"
         extension = {
@@ -190,7 +189,7 @@ class AutoSign:
             "userId": self.userInfo['username'],
             "systemName": "android",
             "lat": self.userInfo['lat'],
-            "deviceId": deviceId
+            "deviceId": self.userInfo['deviceId']
         }
         headers = {
             'User-Agent': self.session.headers['User-Agent'],
@@ -205,7 +204,7 @@ class AutoSign:
 
         forSubmit = {
             "appVersion": appVersion,
-            "deviceId": deviceId,
+            "deviceId": self.userInfo['deviceId'],
             "lat": self.userInfo['lat'],
             "lon": self.userInfo['lon'],
             "model": model,

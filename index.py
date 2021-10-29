@@ -17,6 +17,7 @@ def getConfig():
         if user['isOffset']:
             user['lon'], user['lat'] = RT.locationOffset(
                 user['lon'], user['lat'], config.get('locationOffsetRange', 50))
+        user['deviceId'] = RT.genDeviceID(user.get('username'))
     return config
 
 

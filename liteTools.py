@@ -118,6 +118,15 @@ class RT:
         LL.log(0, f'程序正在暂停({sleepTime})')
         time.sleep(sleepTime)
 
+    @staticmethod
+    def genDeviceID(seed):
+        '''根据种子伪随机生成uuid'''
+        random.seed(seed, version=2)  # 种子设置
+        def ranHex(x): return ''.join(
+            random.choices('0123456789ABCDEF', k=x))  # 指定长度随机Hex字符串生成
+        deviceId = "-".join([ranHex(8), ranHex(4), ranHex(4),
+                            ranHex(4), ranHex(12)])  # 拼合字符串
+        return deviceId
 
 class DT:
     '''DictTools'''

@@ -227,7 +227,6 @@ class Collection:
 
     # 提交表单
     def submitForm(self):
-        deviceId = str(uuid.uuid1())
         model = "RuoLi Phone Plus Pro Max 2021"
         appVersion = "9.0.12"
         extension = {
@@ -238,7 +237,7 @@ class Collection:
             "systemName": "android",
             "lon": self.userInfo['lon'],
             "lat": self.userInfo['lat'],
-            "deviceId": deviceId
+            "deviceId": self.userInfo['deviceId']
         }
 
         headers = {
@@ -261,7 +260,7 @@ class Collection:
 
         forSubmit = {
             "appVersion": appVersion,
-            "deviceId": deviceId,
+            "deviceId": self.userInfo['deviceId'],
             "lat": self.userInfo['lat'],
             "lon": self.userInfo['lon'],
             "model": model,

@@ -131,7 +131,6 @@ class sleepCheck:
 
     # 提交签到信息
     def submitForm(self):
-        deviceId = str(uuid.uuid1())
         model = "RuoLi Phone Plus Pro Max 2021"
         appVersion = "9.0.12"
         extension = {
@@ -142,7 +141,7 @@ class sleepCheck:
             "systemName": "android",
             "lat": self.userInfo['lat'],
             "lon": self.userInfo['lon'],
-            "deviceId": deviceId
+            "deviceId": self.userInfo['deviceId']
         }
         headers = {
             'User-Agent': self.session.headers['User-Agent'],
@@ -156,7 +155,7 @@ class sleepCheck:
         }
         forSubmit = {
             "appVersion": appVersion,
-            "deviceId": deviceId,
+            "deviceId": self.userInfo['deviceId'],
             "lat": self.userInfo['lat'],
             "lon": self.userInfo['lon'],
             "model": model,
