@@ -1,7 +1,6 @@
 import random
 import re
 
-
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 from login.Utils import Utils
@@ -15,8 +14,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 class TodayLoginService:
     # 初始化本地登录类
     def __init__(self, userInfo):
-        if None == userInfo['username'] or '' == userInfo['username'] or None == userInfo['password'] or '' == userInfo[
-            'password'] or None == userInfo['schoolName'] or '' == userInfo['schoolName']:
+        if None == userInfo['username'] or '' == userInfo['username'] or None == userInfo['password'] or '' == \
+                userInfo['password'] or None == userInfo['schoolName'] or '' == userInfo['schoolName']:
             raise Exception('初始化类失败，请键入完整的参数（用户名，密码，学校名称）')
         self.username = userInfo['username']
         self.password = userInfo['password']
@@ -29,9 +28,11 @@ class TodayLoginService:
         self.session.adapters.DEFAULT_RETRIES = 5
         self.session.headers = headers
         # 如果设置了用户的代理，那么该用户将走代理的方式进行访问
-        if 'proxy' in userInfo and userInfo['proxy'] is not None:
+        if 'proxy' in userInfo and userInfo['proxy'] is not None and userInfo['proxy'] != '':
             print(f'{Utils.getAsiaTime()} 检测到代理ip配置，正在使用代理')
             self.session.proxies = {'http': userInfo['proxy'], 'https': userInfo['proxy']}
+        else:
+            print(f'{Utils.getAsiaTime()} 未检测到代理ip，已忽略')
         # 添加hooks进行拦截判断该请求是否被418拦截
         self.session.hooks['response'].append(Utils.checkStatus)
         self.login_url = ''
@@ -41,7 +42,8 @@ class TodayLoginService:
 
     # 通过学校名称借助api获取学校的登陆url
     def getLoginUrlBySchoolName(self):
-        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False, hooks=dict(response=[Utils.checkStatus])).json()[
+        schools = self.session.get('https://mobile.campushoy.com/v6/config/guest/tenant/list', verify=False,
+                                   hooks=dict(response=[Utils.checkStatus])).json()[
             'data']
         flag = True
         for item in schools:
