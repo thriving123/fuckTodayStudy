@@ -116,7 +116,7 @@ class workLog:
             "userId": self.userInfo['username'],
             "systemName": "android",
             "lat": self.userInfo['lat'],
-            "deviceId": str(uuid.uuid1())
+            "deviceId": self.userInfo['deviceId']
         }
         headers = {
             'User-Agent': self.session.headers['User-Agent'],

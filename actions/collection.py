@@ -33,6 +33,10 @@ class Collection:
             'pageSize': 20,
             "pageNumber": 1
         }
+        # 第一次请求接口获取cookies（MOD_AUTH_CAS）
+        self.session.post(queryUrl, headers=headers,
+                          data=json.dumps({}), verify=False)
+        # 第二次请求接口，真正的拿到具体任务
         res = self.session.post(queryUrl, data=json.dumps(
             params), headers=headers, verify=False)
         if res.status_code == 404:
@@ -227,7 +231,6 @@ class Collection:
 
     # 提交表单
     def submitForm(self):
-        deviceId = str(uuid.uuid1())
         model = "RuoLi Phone Plus Pro Max 2021"
         appVersion = "9.0.12"
         extension = {
@@ -238,7 +241,7 @@ class Collection:
             "systemName": "android",
             "lon": self.userInfo['lon'],
             "lat": self.userInfo['lat'],
-            "deviceId": deviceId
+            "deviceId": self.userInfo['deviceId']
         }
 
         headers = {
@@ -261,7 +264,7 @@ class Collection:
 
         forSubmit = {
             "appVersion": appVersion,
-            "deviceId": deviceId,
+            "deviceId": self.userInfo['deviceId'],
             "lat": self.userInfo['lat'],
             "lon": self.userInfo['lon'],
             "model": model,
