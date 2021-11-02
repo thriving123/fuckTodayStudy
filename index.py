@@ -1,4 +1,5 @@
 import traceback
+import os
 from todayLoginService import TodayLoginService
 from actions.autoSign import AutoSign
 from actions.collection import Collection
@@ -23,6 +24,7 @@ def getConfig():
 
 
 def main():
+    os.chdir(os.path.dirname(__file__))  # 将工作路径设置为脚本位置
     config = getConfig()
     encryptApi = config['encryptApi']
     for index, user in enumerate(config['users']):
