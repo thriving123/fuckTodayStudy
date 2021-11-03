@@ -1,16 +1,18 @@
 import base64
 import json
 import re
-import uuid
+
+import requests
 from pyDes import PAD_PKCS5, des, CBC
 
+from login.Utils import Utils
 from todayLoginService import TodayLoginService
 from liteTools import DT
 
 # 教师工作日志类
 class workLog:
     # 初始化顶底工作日志类
-    def __init__(self, todayLoginService: TodayLoginService, userInfo):
+    def __init__(self, todayLoginService: TodayLoginService, userInfo, encryptApi):
         self.session = todayLoginService.session
         self.host = todayLoginService.host
         self.userInfo = userInfo
@@ -21,6 +23,7 @@ class workLog:
             'User-Agent': self.session.headers['User-Agent'],
             'Content-type': 'application/json; charset=utf-8;'
         }
+        self.encryptApi = encryptApi
 
     # 检查是否存在已创建且未提交的模板
     def checkHasLog(self):
@@ -108,6 +111,8 @@ class workLog:
 
     # 地点签到
     def submitSign(self, fieldWid, worklogWid):
+        model = "RuoLi Phone Plus Pro Max 2021"
+        appVersion = "9.0.12"
         extension = {
             "lon": self.userInfo['lon'],
             "model": "OPPO R11 Plus",
@@ -136,7 +141,30 @@ class workLog:
             "longitude": self.userInfo['lon'],
             "latitude": self.userInfo['lat']
         }
-        res = self.session.post(url, data=json.dumps(params), headers=headers, verify=False)
+        forSubmit = {
+            "appVersion": appVersion,
+            "deviceId": self.userInfo['deviceId'],
+            "lat": self.userInfo['lat'],
+            "lon": self.userInfo['lon'],
+            "model": model,
+            "systemName": "android",
+            "systemVersion": "11",
+            "userId": self.userInfo['username'],
+        }
+        forBody = json.dumps(params, ensure_ascii=False)
+        print(f'{Utils.getAsiaTime()} 正在请求加密数据...')
+        res = requests.post(self.encryptApi, params=forSubmit, data=forBody.encode("utf-8"), verify=False)
+        if res.status_code != 200:
+            raise Exception("加密表单数据出错，请反馈")
+        res = res.json()
+        if res['status'] != 200:
+            raise Exception(res['message'])
+        forSubmit['version'] = 'first_v2'
+        forSubmit['calVersion'] = 'firstv'
+        forSubmit['bodyString'] = res['data']['bodyString']
+        forSubmit['sign'] = res['data']['sign']
+
+        res = self.session.post(url, data=json.dumps(forSubmit), headers=headers, verify=False)
         res = DT.resJsonEncode(res)
         if res['message'] == 'SUCCESS':
             url = f'{self.host}wec-counselor-worklog-apps/worklog/detail'

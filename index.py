@@ -87,7 +87,6 @@ def working(user, encryptApi):
         work.getFormsByWids()
         work.fillForms()
         msg = work.submitForms()
-        print(msg)
         return msg
     else:
         raise Exception('任务类型出错，请检查您的user的type')

@@ -3,8 +3,8 @@ import json
 import os
 import random
 import re
-import uuid
 
+import requests
 from pyDes import des, CBC, PAD_PKCS5
 from requests_toolbelt import MultipartEncoder
 
@@ -214,7 +214,7 @@ class AutoSign:
         }
         forBody = json.dumps(self.form, ensure_ascii=False)
         print(f'{Utils.getAsiaTime()} 正在请求加密数据...')
-        res = self.session.post(self.encryptApi, params=forSubmit, data=forBody.encode("utf-8"), verify=False)
+        res = requests.post(self.encryptApi, params=forSubmit, data=forBody.encode("utf-8"), verify=False)
         if res.status_code != 200:
             raise Exception("加密表单数据出错，请反馈")
         res = res.json()
