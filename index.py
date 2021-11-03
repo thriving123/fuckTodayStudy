@@ -15,7 +15,7 @@ def getConfig():
     for user in config['users']:
         user = user['user']
         # 坐标随机偏移
-        if user['isOffset']:
+        if user.get('isOffset'):
             user['lon'], user['lat'] = RT.locationOffset(
                 user['lon'], user['lat'], config.get('locationOffsetRange', 50))
         user['deviceId'] = user.get(
@@ -24,7 +24,7 @@ def getConfig():
 
 
 def main():
-    os.chdir(os.path.dirname(__file__))  # 将工作路径设置为脚本位置
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))  # 将工作路径设置为脚本位置
     config = getConfig()
     encryptApi = config['encryptApi']
     for index, user in enumerate(config['users']):
