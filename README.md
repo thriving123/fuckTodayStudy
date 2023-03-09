@@ -1,5 +1,5 @@
 ## 今日校园免费签到打卡平台
-
+## 随缘学习平台
 > 项目前身： `fuckTodayStudy`，`python`版的`fuckTodayStudy`项目已经停止维护很久了，git上目前主要有基于`fuckTodayStudy`项目的魔改项目[`ruoli-sign-optimization`](https://github.com/IceTiki/ruoli-sign-optimization) 同时我也为其提供了`apple`以做签到时弹出的图片验证码识别，但是由于很多人非科班出身，也没经历为了一个打卡任务学习`python`这门语言，因此在项目重构了，基于`java`技术栈，前端采用`vue`，基本上重构完成
 
 <a href="https://itstar.ruoli.cc">点击这里进入</a>
